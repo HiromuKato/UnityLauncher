@@ -5,8 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UnityLauncher"
         mc:Ignorable="d"
-        Title="UnityLauncher" Height="360" Width="260">
+        Title="UnityLauncher" Height="477.13" Width="695.79">
     <Grid x:Name="grid">
-        <Canvas x:Name="canvas1" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+        <Canvas x:Name="canvas1" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Width="260"/>
+        <ListBox x:Name="listbox" HorizontalAlignment="Left" Height="436" Margin="260,0,0,0" VerticalAlignment="Top" Width="408" SelectionChanged="listbox_SelectionChanged"/>
     </Grid>
 </Window>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -15,10 +16,14 @@ namespace UnityLauncher
         // ★Unityのインストールディレクトリを変更している場合はここを変更してください
         private string rootPath = @"C:\Program Files\";
 
+        // リストボックスで選択したプロジェクト
+        private string selectedPJ = "";
+
         public MainWindow()
         {
             InitializeComponent();
             CreateButtons();
+            GetCurrentProject();
         }
 
         /// <summary>
@@ -44,10 +49,9 @@ namespace UnityLauncher
                 btn.Width = 200;
                 btn.Height = 30;
                 Canvas.SetLeft(btn, 10);
-                Canvas.SetTop(btn, 10 + i * 32);
+                Canvas.SetTop(btn, i * 32);
                 btn.Click += (s1, e1) =>
                 {
-                    //MessageBox.Show(dirName);
                     ExecUnity(dir);
                 };
                 canvas1.Children.Add(btn);
@@ -63,13 +67,6 @@ namespace UnityLauncher
             try
             {
                 string[] dirs = Directory.GetDirectories(rootPath, "*Unity*");
-                /*
-                Console.WriteLine("The number of directories is {0}.", dirs.Length);
-                foreach (string dir in dirs)
-                {
-                    Console.WriteLine(dir);
-                }
-                */
                 return dirs;
             }
             catch (Exception e)
@@ -86,7 +83,50 @@ namespace UnityLauncher
         /// <param name="path">実行するUnityのディレクトリパス</param>
         private void ExecUnity(string path)
         {
-            Process.Start(path + @"\Editor\Unity.exe");
+            if(selectedPJ == null || selectedPJ.Equals(""))
+            {
+                Process.Start(path + @"\Editor\Unity.exe");
+            }
+            else
+            {
+                // 選択したプロジェクトを開く
+                Process.Start(path + @"\Editor\Unity.exe", "-projectPath " + selectedPJ);
+            }
+        }
+
+        /// <summary>
+        /// 最近開いたプロジェクトをレジストリから取得する
+        /// </summary>
+        private void GetCurrentProject()
+        {
+            string regPath = @"Software\Unity Technologies\Unity Editor 5.x";
+            using (RegistryKey regKey = Registry.CurrentUser.OpenSubKey(regPath, false))
+            {
+                if (regKey == null)
+                {
+                    MessageBox.Show("null");
+                    return;
+                }
+
+                foreach (string valName in regKey.GetValueNames())
+                {
+                    if (valName.Contains("RecentlyUsedProjectPaths"))
+                    {
+                        byte[] bt = (byte[])regKey.GetValue(valName);
+                        Console.WriteLine(bt.Length);
+                        string pj = System.Text.Encoding.UTF8.GetString(bt);
+                        listbox.Items.Add(pj.TrimEnd('\0'));
+                    }
+                }
+            };
+        }
+
+        /// <summary>
+        /// リストボックスの選択が変更されたときに呼ばれるコールバック
+        /// </summary>
+        private void listbox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            selectedPJ = listbox.SelectedValue.ToString();
         }
 
     } // class
